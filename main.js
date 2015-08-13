@@ -40,8 +40,13 @@ var fps = 0;
 var fpsCount = 0;
 var fpsTime = 0;
 
+var canShoot = false;
+var shootCount = 0;
+
+var enemy = new Enemy();
 var player = new Player();
 var keyboard = new Keyboard();
+var bullet = new Bullet();
 
 // load an image to draw
 var chuckNorris = document.createElement("img");
@@ -55,7 +60,13 @@ function run()
 	var deltaTime = getDeltaTime();
 	
 	player.update(deltaTime);
-	player.draw();	
+	player.draw();
+	
+	bullet.update(player.rotation, player.x, player.y)
+	bullet.draw();
+	
+	enemy.update(deltaTime);
+	enemy.draw();
 		
 	// update the frame counter 
 	fpsTime += deltaTime;
@@ -71,6 +82,12 @@ function run()
 	context.fillStyle = "#f00";
 	context.font="14px Arial";
 	context.fillText("FPS: " + fps, 5, 20, 100);
+	
+	if(keyboard.isKeyDown(keyboard.KEY_SHIFT) == true)
+	{
+		bullet.shootDelay(canShoot, shootCount)
+	}
+	
 }
 
 
