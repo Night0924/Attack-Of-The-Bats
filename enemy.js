@@ -4,6 +4,7 @@ var Enemy = function() {
 	this.y = canvas.height/2;
 	this.width = 165;
 	this.height = 126;
+	this.isDead = false;
 	
 	this.image.src = "enemy.png";
 }

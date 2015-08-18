@@ -2,6 +2,9 @@ var BULLET_SPEED = 3;
 
 var bullets = [];
 
+var rotationSet = false;
+var shootTimer = 0;
+
 var Bullet = function() {
 	this.image = document.createElement('img');
 	this.x = player.x;
@@ -14,17 +17,12 @@ var Bullet = function() {
 	this.image.src = "bullet.png"
 };
 
-Bullet.prototype.shootDelay = function(canShoot, shootCount)
+Bullet.prototype.shootDelay = function(shootCount, playerRotation, PlayerX, PlayerY)
 {
-	if(canShoot == true && shootCount >= 50)	
+	if(shootCount >= 50)	
 	{
 		shootTimer +=0.3;
-		playerShoot();
-		shootCount = 0;
-	}
-	else
-	{
-		shootCount += 1;
+		bullet.playerShoot(playerRotation, PlayerX, PlayerY);
 	}
 }
 
@@ -57,10 +55,10 @@ Bullet.prototype.playerShoot = function(playerRotation, x, y)
 	
 	var s = Math.sin(playerRotation);
 	var c = Math.cos(playerRotation);
-	
+		
 	var xVel = (velX * c) - (velY * s);
 	var yVel = (velX * s) + (velY * c);
-
+	
 	this.velocityX = xVel * BULLET_SPEED;
 	this.velocityY = yVel * BULLET_SPEED;
 	
@@ -73,7 +71,23 @@ Bullet.prototype.playerShoot = function(playerRotation, x, y)
 	bullets.push(this);
 };
 
-Bullet.prototype.draw = function()
+Bullet.prototype.shootTimerReset = function(deltaTime)
 {
-	context.drawImage(bullet.image, this.x, this.y)
+	if(shootTimer > 0)
+	{
+		shootTimer -= deltaTime;
+	}
+};
+
+Bullet.prototype.collisions = function(enemyX, enemyY, enemyWidth, enemyHeight)
+{
+	for(var i=0; i<bullets.length; i++)
+	{
+		if(intersects(bullets[i].x, bullets[i].y, bullets[i].width, bullets[i].height, enemyX, enemyY, enemyWidth, enemyHeight) == true)
+		{
+			bullets.splice(i, 1);		
+			return true;
+			break;
+		}
+	}
 };
