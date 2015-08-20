@@ -1,6 +1,6 @@
 var Enemy = function() {
 	this.image = document.createElement("img");
-	this.x = canvas.width/2 + 200;
+	this.x = 520;
 	this.y = canvas.height/2;
 	this.width = 165;
 	this.height = 126;

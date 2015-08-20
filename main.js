@@ -33,9 +33,11 @@ function getDeltaTime()
 //	    CONSTANTS
 //----------------------
 
+// SCREEN
 var SCREEN_WIDTH = canvas.width;
 var SCREEN_HEIGHT = canvas.height;
 
+// LEVEL
 var LAYER_COUNT = 3;
 var LAYER_BACKGROUND = 0;
 var LAYER_PLATFORMS = 1;
@@ -48,6 +50,21 @@ var TILESET_SPACING = 2;
 var TILESET_COUNT_X = 14;
 var TILESET_COUNT_Y = 14;
 
+// FORCES
+var METER = TILE;
+var GRAVITY = METER * 9.8 * 6;
+var MAXDX = METER * 10;
+var MAXDY = METER * 15;
+var ACCEL = MAXDX * 2;
+var FRICTION = MAXDX * 6;
+var JUMP = METER * 1500;
+
+// STATES
+var STATE_SPLASH = 0;
+var STATE_MAINMENU = 1;
+var STATE_GAME = 2;
+var STATE_GAMEOVER = 3;
+
 //----------------------
 //	     ARRAYS
 //----------------------
@@ -58,20 +75,34 @@ var cells = [];
 //	    VARIABLES
 //----------------------
 
-// some variables to calculate the Frames Per Second (FPS - this tells use
-// how fast our game is running, and allows us to make the game run at a 
-// constant speed)
+// FPS
 var fps = 0;
 var fpsCount = 0;
 var fpsTime = 0;
 
+// SHOOT
 var shootCount = 50;
 
+// OBJECTS
 var enemy = new Enemy();
 var player = new Player();
 var keyboard = new Keyboard();
 var bullet = new Bullet();
+var logo = document.createElement("img");
+logo.src = "logo.png";
+var gameLogo = document.createElement("img");
+gameLogo.src = "gameLogo.png";
 
+var newSize = scaleSize(200, 200, 500, 313)
+
+// STATES
+var gameState = STATE_SPLASH;
+
+// SPLASH
+var splashTimer = 10;
+var wordTimer = 0;
+
+// LEVEL TILES
 var tileset = document.createElement("img");
 tileset.src = "resources/tileset.png";
 
@@ -87,29 +118,21 @@ function intersects(x1, y1, w1, h1, x2, y2, w2, h2)
 	return true;
 }
 
-function cellAtPixelCoord(layer, x, y)
+function cellAtPixelCoord(layer, x,y)
 {
-	if(x<0 || x>SCREEN_WIDTH || y<0)
-	{
+	if(x < 0 || x > SCREEN_WIDTH || y < 0)
 		return 1;
-	}
 	if(y>SCREEN_HEIGHT)
-	{
 		return 0;
-	}
 	return cellAtTileCoord(layer, p2t(x), p2t(y));
 };
 
 function cellAtTileCoord(layer, tx, ty)
 {
-	if(tx<0 || tx>=MAP.tw || ty<0)
-	{
+	if(tx < 0 || tx >= MAP.tw || ty < 0)
 		return 1;
-	}
-	if(tx>=MAP.th)
-	{
+	if(ty>=MAP.th)
 		return 0;
-	}
 	return cells[layer][ty][tx];
 };
 
@@ -126,15 +149,12 @@ function pixelToTile(pixel)
 function bound(value, min, max)
 {
 	if(value < min)
-	{
 		return min;
-	}
 	if(value > max)
-	{
 		return max;
-	}
 	return value;
-}
+};
+
 
 function drawMap()
 {
@@ -191,9 +211,86 @@ function run()
 	context.fillStyle = "#ccc";		
 	context.fillRect(0, 0, canvas.width, canvas.height);
 	
-	drawMap();
-	
 	var deltaTime = getDeltaTime();
+	
+	switch(gameState)
+	{
+	case STATE_SPLASH:
+		runSplash(deltaTime);
+		break;
+	case STATE_MAINMENU:
+		runMainMenu(deltaTime);
+		break;
+	case STATE_GAME:
+		runGame(deltaTime);
+		break;
+	case STATE_GAMEOVER:
+		runGameOver(deltaTime);
+		break;
+	}
+}
+
+function runSplash(deltaTime)
+{
+	splashTimer -= deltaTime;
+	if(splashTimer <= 0)
+	{
+		gameState = STATE_MAINMENU;
+		return;
+	}
+	
+	wordTimer += deltaTime;
+	if(wordTimer <= 3)
+	{
+		context.fillStyle = "#000";
+		context.font="24px Arial";
+		context.fillText("Chuck Norris stars in:", 210, 240);
+	}
+	else if(wordTimer <= 6)
+	{
+		context.fillStyle = "#000";
+		context.font="24px Arial";
+		context.fillText("A Relentless Games production", 160, 240);
+		context.drawImage(logo, 260, 150);
+	}
+	else if(wordTimer >= 6)
+	{
+		context.drawImage(gameLogo, 210, 180);
+	}
+	
+}
+
+function runMainMenu(deltaTime)
+{
+	/* newSize = scaleSize(200, 200, logo.width, logo.height);
+	logo.width = newSize[0];
+	logo.height = newSize[1]; */
+	
+	context.drawImage(logo, 501, 400);
+	context.drawImage(gameLogo, 5, 400);
+}
+
+function scaleSize(maxW, maxH, currW, currH)
+{
+	var ratio = currH / currW;
+	
+	if(currW >= maxW || ratio <= 1)
+	{
+		currW = maxW;
+		currH = currW * ratio;
+	}
+	else if(currH >= maxH)
+	{
+		currH = maxH;
+		currW = currH / ratio;
+	}
+	
+	return [currW, currH]
+}
+
+function runGame(deltaTime)
+{
+	drawMap();
 	
 	bullet.shootTimerReset(deltaTime);
 	
@@ -237,7 +334,12 @@ function run()
 	// draw the FPS
 	context.fillStyle = "#f00";
 	context.font="14px Arial";
-	context.fillText("FPS: " + fps, 5, 20, 100);	
+	context.fillText("FPS: " + fps, 5, 20, 100);
+}
+
+function runGameOver()
+{
+	
 }
 
 initialize();

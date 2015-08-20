@@ -5,31 +5,35 @@ var Vector2 = function() {
 
 Vector2.prototype.set = function(x, y)
 {
-	var vector2 = new Vector2(x, y)
+	this.x = x;
+	this.y = y;
 };
 
 Vector2.prototype.normalize = function()
 {
 	var length = Math.sqrt(this.x * this.x + this.y * this.y);
 	
-	var normalX = Vector2.x / length;
-	var normalY = Vector2.y / length;
-}
+	var normalX = this.x / length;
+	var normalY = this.y / length;
+	
+	this.x = normalX;
+	this.y = normalY;
+};
 
 Vector2.prototype.add = function(v2)
 {
-	v2 = (this.x, this.y) + v2;
-	return v2;
-}
+	this.x + v2;
+	this.y + v2;
+};
 
 Vector2.prototype.subtract = function(v2)
 {
-	v2 = (this.x, this.y) - v2;
-	return v2;
-}
+	this.x - v2;
+	this.y - v2;
+};
 
 Vector2.prototype.multiplyScalar = function(num)
 {
-	var vector = num*(this.x, this.y);
-	return vector;
-}
+	this.x = num * this.x;
+	this.y = num * this.y;
+};

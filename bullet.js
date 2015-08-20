@@ -85,7 +85,8 @@ Bullet.prototype.collisions = function(enemyX, enemyY, enemyWidth, enemyHeight)
 	{
 		if(intersects(bullets[i].x, bullets[i].y, bullets[i].width, bullets[i].height, enemyX, enemyY, enemyWidth, enemyHeight) == true)
 		{
-			bullets.splice(i, 1);		
+			bullets.splice(i, 1);
+			console.log("Collision with enemy");
 			return true;
 			break;
 		}
