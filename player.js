@@ -1,7 +1,21 @@
-var Player = function() {
+var LEFT = 0;
+var RIGHT = 1;
+
+var ANIM_IDLE_LEFT = 0;
+var ANIM_JUMP_LEFT = 1;
+var ANIM_WALK_LEFT = 2;
+var ANIM_SHOOT_LEFT = 3;
+var ANIM_CLIMB = 4;
+var ANIM_IDLE_RIGHT = 5;
+var ANIM_JUMP_LEFT = 6;
+var ANIM_WALK_LEFT = 7;
+var ANIM_SHOOT_LEFT = 8;
+var ANIM_MAX = 9;
+
+var Player = function() {	
 	this.image = document.createElement("img");
 	this.position = new Vector2();
-	this.position.set(9*TILE, 0*TILE);
+	this.position.set(2*TILE, 0*TILE);
 	
 	this.width = 159;
 	this.height = 163;
@@ -14,6 +28,8 @@ var Player = function() {
 	
 	this.jumping = false;
 	this.falling = true;
+	
+	this.isDead = false;
 	
 	this.image.src = "hero.png";
 }
@@ -79,7 +95,7 @@ Player.prototype.update = function(deltaTime)
 		this.velocity.x = 0;
 	}
 
-	var tx = pixelToTile(this.position.x);
+	var tx = pixelToTile(this.position.x);	
 	var ty = pixelToTile(this.position.y);
 	var nx = (this.position.x)%TILE; 
 	var ny = (this.position.y)%TILE; 
@@ -129,8 +145,8 @@ Player.prototype.update = function(deltaTime)
 Player.prototype.draw = function()
 {
 	context.save();
-		context.translate(this.x, this.y)
+		context.translate(this.position.x, this.position.y)
 		context.rotate(this.rotation)
-		context.drawImage(this.image, this.position.x, this.position.y);
+		context.drawImage(this.image, -this.width / 2, -this.height / 2);
 	context.restore();
 }

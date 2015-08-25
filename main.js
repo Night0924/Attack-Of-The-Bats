@@ -62,8 +62,15 @@ var JUMP = METER * 1500;
 // STATES
 var STATE_SPLASH = 0;
 var STATE_MAINMENU = 1;
-var STATE_GAME = 2;
-var STATE_GAMEOVER = 3;
+var STATE_SETTINGS = 2;
+var STATE_CREDITS = 3;
+var STATE_GAME = 4;
+var STATE_GAMEOVER = 5;
+
+// SELECTED ITEM MENU
+var MENU_PLAY = 0;
+var MENU_SETTINGS = 1;
+var MENU_CREDITS = 2;
 
 //----------------------
 //	     ARRAYS
@@ -92,8 +99,16 @@ var logo = document.createElement("img");
 logo.src = "logo.png";
 var gameLogo = document.createElement("img");
 gameLogo.src = "gameLogo.png";
+var overworld = document.createElement("img");
+overworld.src = "overworld.png";
+var cave = document.createElement("img");
+cave.src = "cave.png";
 
-var newSize = scaleSize(200, 200, 500, 313)
+var newSize = scaleSize(200, 200, 500, 313);
+
+// SELECTION
+var selectionTimer = 0;
+var selectedItem = MENU_PLAY;
 
 // STATES
 var gameState = STATE_SPLASH;
@@ -224,6 +239,10 @@ function run()
 	case STATE_GAME:
 		runGame(deltaTime);
 		break;
+	case STATE_SETTINGS:
+		break;
+	case STATE_CREDITS:
+		break;
 	case STATE_GAMEOVER:
 		runGameOver(deltaTime);
 		break;
@@ -232,6 +251,11 @@ function run()
 
 function runSplash(deltaTime)
 {
+	if(keyboard.isKeyDown(keyboard.KEY_ESCAPE) == true)
+	{
+		gameState = STATE_MAINMENU;
+	}
+	
 	splashTimer -= deltaTime;
 	if(splashTimer <= 0)
 	{
@@ -268,6 +292,85 @@ function runMainMenu(deltaTime)
 	
 	context.drawImage(logo, 501, 400);
 	context.drawImage(gameLogo, 5, 400);
+	
+	context.fillStyle = "#FFF";
+	context.font="24px Arial";
+	context.fillText("Play", 295, 70);
+	
+	context.fillText("Settings", 275, 100);
+	
+	context.fillText("Credits", 280, 130)
+	
+	if(keyboard.isKeyDown(keyboard.KEY_DOWN) == true && selectionTimer >= 40)
+	{
+		if(selectedItem == MENU_PLAY)
+		{
+			selectedItem = MENU_SETTINGS;
+		}
+		else if(selectedItem == MENU_SETTINGS)
+		{
+			selectedItem = MENU_CREDITS;
+		}
+		else if(selectedItem == MENU_CREDITS)
+		{
+			selectedItem = MENU_PLAY;
+		}
+		selectionTimer = 0;
+	}
+	else if(keyboard.isKeyDown(keyboard.KEY_UP) == true && selectionTimer >= 40)
+	{
+		if(selectedItem == MENU_PLAY)
+		{
+			selectedItem = MENU_CREDITS;
+		}
+		else if(selectedItem == MENU_SETTINGS)
+		{
+			selectedItem = MENU_PLAY;
+		}
+		else if(selectedItem == MENU_CREDITS)
+		{
+			selectedItem = MENU_SETTINGS;
+		}
+		selectionTimer = 0;
+	}
+	else{
+		selectionTimer += 1;
+	}
+	
+	if(selectedItem == MENU_PLAY)
+	{
+		context.fillStyle = "#000";
+		context.font="24px Arial";
+		context.fillText("Play", 295, 70);
+	}
+	else if(selectedItem == MENU_SETTINGS)
+	{
+		context.fillStyle = "#000";
+		context.font="24px Arial";
+		context.fillText("Settings", 275, 100);
+	}
+	else if(selectedItem == MENU_CREDITS)
+	{
+		context.fillStyle = "#000";
+		context.font="24px Arial";
+		context.fillText("Credits", 280, 130)
+	}
+	
+	if(keyboard.isKeyDown(keyboard.KEY_ENTER) == true)
+	{
+		if(selectedItem == MENU_PLAY)
+		{
+			gameState = STATE_GAME;
+		}
+		else if(selectedItem == MENU_SETTINGS)
+		{
+			gameState = STATE_SETTINGS;
+		}
+		else if(selectedItem == MENU_CREDITS)
+		{
+			gameState = STATE_CREDITS;
+		}
+	}
 }
 
 function scaleSize(maxW, maxH, currW, currH)
@@ -290,6 +393,7 @@ function scaleSize(maxW, maxH, currW, currH)
 
 function runGame(deltaTime)
 {
+	context.drawImage(cave, 0, 0)
 	drawMap();
 	
 	bullet.shootTimerReset(deltaTime);
@@ -306,10 +410,13 @@ function runGame(deltaTime)
 	
 	bullet.update();
 	
-	player.update(deltaTime);
-	player.draw();
+	if(player.isDead == false)
+	{
+		player.update(deltaTime);
+		player.draw();
+	}
 	
-	if(bullet.collisions(enemy.x, enemy.y, enemy.width, enemy.height) == true)
+	/* if(bullet.collisions(enemy.x, enemy.y, enemy.width, enemy.height) == true)
 	{
 		enemy.isDead = true;
 		enemy.x = 9000;
@@ -320,7 +427,8 @@ function runGame(deltaTime)
 	{
 		enemy.update(deltaTime);
 		enemy.draw();
-	}	
+	} */
+	
 	// update the frame counter 
 	fpsTime += deltaTime;
 	fpsCount++;
@@ -335,6 +443,16 @@ function runGame(deltaTime)
 	context.fillStyle = "#f00";
 	context.font="14px Arial";
 	context.fillText("FPS: " + fps, 5, 20, 100);
+	
+	if(player.position.y > SCREEN_HEIGHT)
+	{
+		player.isDead = true;
+	}
+	
+	if(player.isDead == true)
+	{
+		gameState = STATE_GAMEOVER;
+	}
 }
 
 function runGameOver()
